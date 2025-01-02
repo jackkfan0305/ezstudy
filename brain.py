@@ -87,24 +87,3 @@ def get_embeddings(pdf_file: BytesIO, file_name: str, openai_api_key: str):
     
 #     return docs
 
-
-
-
-
-
-#test the parse pdf function
-# file = open("MAT337.pdf", "rb")
-# pages = parse_pdf(BytesIO(file.read()), "MAT337.pdf")
-
-# # print(pages)
-
-# print(embeddings)
-# print(len(embeddings))
-
-
-# docs = text_to_docs(['hello world hi hi bye'], "test.pdf")
-# print(docs)
-
-
-# for doc in embedded_docs:
-#     print(doc.metadata['embedding'])
