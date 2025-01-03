@@ -1,5 +1,7 @@
 
+import hashlib
 from io import BytesIO
+import uuid
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
@@ -43,47 +45,52 @@ def get_embeddings(pdf_file: BytesIO, file_name: str, openai_api_key: str):
 
     return embeddings, pages
 
-# def text_to_docs(text: list[str], filename: str) -> list[Document]:
-#     if isinstance(text, str):
-#         text = [text]
-#     page_docs = [Document(page_content=page) for page in text]
-#     for i, doc in enumerate(page_docs):
-#         doc.metadata["page"] = i + 1
 
-#     doc_chunks = []
-#     for doc in page_docs:
-#         text_splitter = RecursiveCharacterTextSplitter(
-#             chunk_size=4000,
-#             separators=["\n\n", "\n", ".", "!", "?", ",", " ", ""],
-#             chunk_overlap=0,
-#         )
-#         chunks = text_splitter.split_text(doc.page_content)
-#         for i, chunk in enumerate(chunks):
-#             doc = Document(
-#                 page_content=chunk, metadata={"page": doc.metadata["page"], "chunk": i}
-#             )
-#             doc.metadata["filename"] = filename  # Add filename to metadata
-            
-#             doc_chunks.append(doc)
-#     return doc_chunks
+def compute_hash(data: bytes) -> str:
+    """Compute the hash of the data."""
+    return hashlib.sha256(data).hexdigest()
 
-# def docs_to_embed(docs: list[Document], openai_api_key):
-#     embedding = OpenAIEmbeddings(api_key=openai_api_key, model="text-embedding-ada-002")
-    
-#     # Prepare documents for embedding (combine content + metadata)
-#     combined_texts = [
-#         f"Filename: {doc.metadata.get('filename', 'Unknown')}\n"
-#         f"Page: {doc.metadata.get('page', 'N/A')}\n"
-#         f"Content: {doc.page_content}"
-#         for doc in docs
-#     ]
-    
-#     # Generate embeddings for combined text
-#     vector_embeddings = embedding.embed_documents(combined_texts)
-    
-#     # Attach embeddings to documents' metadata
-#     for i, doc in enumerate(docs):
-#         doc.metadata['embedding'] = vector_embeddings[i]
-    
-#     return docs
+
+def upsert_data_to_pinecone(embeddings_list, pages_list, pdf_files, index):
+    """Upsert data to Pinecone index."""
+    upsert_data = []
+
+    for file_embedding, page, pdf_file in zip(embeddings_list, pages_list, pdf_files):
+        file_hash = compute_hash(pdf_file.getvalue()) 
+
+        # Query Pinecone to check for duplicate hash
+        query_result = index.query(
+            vector=[0.0]*1536,
+            top_k=1,
+            filter={"file_hash": {"$eq": file_hash}}
+        )
+
+        # If the hash exists, skip upserting
+        if query_result['matches']:
+            # st.warning(f"Duplicate PDF detected: {pdf_file.name}")
+            continue
+
+        # If the hash is not found, proceed to upsert
+        ids = [str(uuid.uuid4()) for _ in file_embedding]
+
+        for i, (embedding, page_text) in enumerate(zip(file_embedding, page)):
+            record = {
+                "id": ids[i],
+                "values": embedding,
+                "metadata": {
+                    "text": page_text,
+                    "filename": pdf_file.name,
+                    "file_hash": file_hash
+                }
+            }
+            upsert_data.append(record)
+
+    return upsert_data
+
+
+def perform_similarity_search(question, openai_api_key, index, top_k=3):
+    """Embeds user query and performs similarity search on the Pinecone index."""
+    embedding = OpenAIEmbeddings(api_key=openai_api_key, model="text-embedding-ada-002")
+    embedded_question = embedding.embed_query(question)
+    return index.query(vector=embedded_question, top_k=top_k, include_metadata=True)
 
