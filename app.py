@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 import os
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
-from brain import get_embeddings, perform_similarity_search, upsert_data_to_pinecone
+from helper import get_embeddings, perform_similarity_search, upsert_data_to_pinecone
 
 st.title('EZStudy')
 
