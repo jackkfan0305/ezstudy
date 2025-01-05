@@ -1,6 +1,6 @@
-# 📚 EZStudy - PDF Quiz Generator
+# 📚 EZStudy - AI Study Bot
 
-**EZStudy** is a Streamlit-based web application that allows users to upload PDF documents and generate interactive multiple-choice quizzes from their content. The application leverages AI to extract meaningful information from PDFs and automatically creates quiz questions to help users reinforce their knowledge.
+**EZStudy** is a Streamlit-based web application that allows users to upload PDF documents and generate interactive quizzes from their content. The application leverages AI to extract meaningful information from PDFs and automatically creates quiz questions to help users reinforce their knowledge.
 
 ---
 
@@ -18,3 +18,6 @@ The goal of **EZStudy** is to provide an interactive and engaging way for users 
 - **PDF Processing**: PyMuPDF (or other PDF libraries depending on implementation)
 
 ---
+
+## 🌐 [Live Web App](https://jackkfan0305-ezstudy-app-mxr8wr.streamlit.app/)
+
