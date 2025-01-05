@@ -4,4 +4,6 @@ python-dotenv
 pinecone
 openai
 langchain
+langchain_openai
+langchain_text_splitters
 pypdf
