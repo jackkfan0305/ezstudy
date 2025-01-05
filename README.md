@@ -14,8 +14,6 @@ The goal of **EZStudy** is to provide an interactive and engaging way for users 
 - **AI/LLM**: OpenAI (GPT-4)
 - **Vector Database**: Pinecone (for RAG - Retrieval-Augmented Generation)
 - **Embeddings**: OpenAI Embeddings
-- **Environment Management**: Python-dotenv
-- **PDF Processing**: PyMuPDF (or other PDF libraries depending on implementation)
 
 ---
 
