@@ -112,14 +112,17 @@ if menu == "Chat":
         contexts_extracted = "\n ".join([result["metadata"]["text"] for result in similarity_search["matches"]])
         file_names = ", ".join(set([result["metadata"]["filename"] for result in similarity_search["matches"]]))
 
-        llm_prompt = """You are a helpful Assistant who answers to users questions based on multiple contexts given to you.
-        
-        The evidence are the context of the pdf extract with metadata. 
-        
-        The PDF content is:
+        llm_prompt = """You are an intelligent and knowledgeable assistant designed to help users understand and analyze the contents of PDF documents they upload. Your role is to provide clear, concise, and informative answers to their questions by referencing the most relevant sections of the uploaded PDFs.
+        Use the provided PDF extracts as evidence to craft accurate responses. If necessary, synthesize information from multiple parts of the document to ensure comprehensive answers. Where applicable, explain complex concepts in simple terms and provide additional context to enhance user understanding.
+        ### PDF Context and Metadata:
         {contexts_extracted}
 
-        The file names is/are: {file_names}
+        ### Source File(s):
+        {file_names}
+
+        If the information is not available within the provided context, let the user know that the answer cannot be determined based on the current documents. Encourage users to upload additional relevant files if necessary.
+
+        Always be thorough and structured in your response, breaking down key points step by step if needed. Summarize long explanations at the end for clarity.
         """
 
         # Append user's question to the prompt
