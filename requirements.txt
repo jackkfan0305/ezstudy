@@ -1,0 +1,7 @@
+streamlit
+streamlit-option-menu
+python-dotenv
+pinecone
+openai
+langchain
+pypdf
